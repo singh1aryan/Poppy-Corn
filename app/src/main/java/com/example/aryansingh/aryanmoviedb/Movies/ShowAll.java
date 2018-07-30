@@ -14,6 +14,7 @@ import com.example.aryansingh.aryanmoviedb.MovieConstants;
 import com.example.aryansingh.aryanmoviedb.MovieDBClient;
 import com.example.aryansingh.aryanmoviedb.MovieInfo.MovieInfo;
 import com.example.aryansingh.aryanmoviedb.R;
+import com.example.aryansingh.aryanmoviedb.RecyclerViewItemDecorator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,10 @@ public class ShowAll extends AppCompatActivity {
         showAll.setAdapter(showAllAdaptor);
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         showAll.setLayoutManager(gridLayoutManager);
+
+//        int spaceInPixels = 0;
+//        showAll.addItemDecoration(new RecyclerViewItemDecorator(spaceInPixels));
+
         scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {

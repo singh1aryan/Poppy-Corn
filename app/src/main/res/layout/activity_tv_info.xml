@@ -154,7 +154,6 @@
                     android:layout_height="wrap_content">
 
 
-
                     <ImageView
                         android:id="@+id/mylist"
                         app:srcCompat="@drawable/ic_add_black_24dp"

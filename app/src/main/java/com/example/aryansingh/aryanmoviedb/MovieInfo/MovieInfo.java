@@ -217,7 +217,7 @@ public class MovieInfo extends AppCompatActivity {
                 if (movieDetails.getOverview() != null) {
                     movie_info_overview.setText(movieDetails.getOverview() + "");
                 }
-                if (movieDetails.getReleaseDate() != null) {
+                if (movieDetails.getReleaseDate() != null || movieDetails.getReleaseDate().length()!=0) {
                     String year = movieDetails.getReleaseDate().substring(0,4);
                     movie_info_release_date.setText(year);
                 }

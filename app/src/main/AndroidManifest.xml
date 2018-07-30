@@ -24,7 +24,8 @@
         <activity android:name=".CastInfo.CastGallery" />
         <activity android:name=".TvShows.TvShowAll" />
         <activity android:name=".TvShowInfo.TvInfo" />
-        <activity android:name=".TvShows.ShowAllTv"></activity>
+        <activity android:name=".TvShows.ShowAllTv" />
+        <activity android:name=".Search.SearchActivity"></activity>
     </application>
 
 </manifest>
