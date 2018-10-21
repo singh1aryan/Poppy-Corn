@@ -24,6 +24,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MoviesViewHold
     public Context context;
     public List<Result> list;
     public ItemAdapter.MoviesClickListener listener;
+//
+//    boolean movie,tv,person;
 
     public ItemAdapter(Context context, List<Result> list, ItemAdapter.MoviesClickListener listener) {
         this.context = context;
@@ -34,7 +36,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MoviesViewHold
     @NonNull
     @Override
     public ItemAdapter.MoviesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(context).inflate(R.layout.row_layout, parent, false);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.search_layout, parent, false);
         return new ItemAdapter.MoviesViewHolder(itemView, listener);
     }
 
@@ -43,17 +45,29 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MoviesViewHold
 
         Result searchResult = (Result) list.get(position);
 
-        if (searchResult.getTitle() != null) {
+        if(searchResult.getMediaType().equals("movie")){
             holder.title.setText(searchResult.getTitle());
+            if(searchResult.getPosterPath()!=null)
+                Picasso.with(context).load(MovieConstants.SLIDER_BASE_URL + searchResult.getPosterPath()).into(holder.backdrop);
+            else{
+                Picasso.with(context).load(R.drawable.noimage).into(holder.backdrop);
+            }
         }
-        if (searchResult.getMediaType() != null) {
-            holder.type.setText(searchResult.getMediaType());
+        if(searchResult.getMediaType().equals("tv")){
+            holder.title.setText(searchResult.getName());
+            if(searchResult.getPosterPath()!=null)
+            Picasso.with(context).load(MovieConstants.SLIDER_BASE_URL + searchResult.getPosterPath()).into(holder.backdrop);
+            else{
+                Picasso.with(context).load(R.drawable.noimage).into(holder.backdrop);
+            }
         }
-        if (searchResult.getBackdropPath() != null) {
-            Picasso.with(context).load(MovieConstants.MOVIE_IMAGE_BASE_URL + searchResult.getPosterPath()).into(holder.backdrop);
-        }
-        if (searchResult.getOverview() != null) {
-            holder.overview.setText(searchResult.getOverview());
+        if(searchResult.getMediaType().equals("person")){
+            holder.title.setText(searchResult.getName());
+            if(searchResult.getProfile_path()!=null)
+                Picasso.with(context).load(MovieConstants.SLIDER_BASE_URL + searchResult.getProfile_path()).into(holder.backdrop);
+            else{
+                Picasso.with(context).load(R.drawable.noimage).into(holder.backdrop);
+            }
         }
     }
 
@@ -68,10 +82,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MoviesViewHold
 
     public static class MoviesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        ImageView contentImageView;
-        TextView contentTextView;
-        TextView type;
-        TextView overview;
         ImageView backdrop;
         TextView title;
         ItemAdapter.MoviesClickListener moviesClickListener;
@@ -79,8 +89,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MoviesViewHold
         public MoviesViewHolder(View view, ItemAdapter.MoviesClickListener listener) {
             super(view);
             moviesClickListener = listener;
-            type = view.findViewById(R.id.type);
-            overview = view.findViewById(R.id.overview);
             backdrop = view.findViewById(R.id.backdrop);
             title = view.findViewById(R.id.title);
             itemView.setOnClickListener(this);

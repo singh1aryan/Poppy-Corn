@@ -25,7 +25,11 @@
         <activity android:name=".TvShows.TvShowAll" />
         <activity android:name=".TvShowInfo.TvInfo" />
         <activity android:name=".TvShows.ShowAllTv" />
-        <activity android:name=".Search.SearchActivity"></activity>
+        <activity android:name=".Search.SearchActivity" />
+        <activity android:name=".YTActivity">
+
+
+        </activity>
     </application>
 
 </manifest>

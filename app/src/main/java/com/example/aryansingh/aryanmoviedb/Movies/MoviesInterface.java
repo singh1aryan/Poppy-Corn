@@ -8,6 +8,7 @@ import com.example.aryansingh.aryanmoviedb.MovieInfo.Crew;
 import com.example.aryansingh.aryanmoviedb.MovieInfo.ImageResult;
 import com.example.aryansingh.aryanmoviedb.MovieInfo.MovieDetails;
 import com.example.aryansingh.aryanmoviedb.MovieInfo.SimilarMovies;
+import com.example.aryansingh.aryanmoviedb.MovieInfo.VideoResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -44,6 +45,8 @@ public interface MoviesInterface {
     @GET("movie/{movie_id}/credits")
     Call<Cast> getCrew(@Path("movie_id")long id, @Query("api_key")String api);
 
+    @GET("movie/{movie_id}/videos")
+    Call<VideoResponse> getVideo(@Path("movie_id")long id, @Query("api_key")String api );
 
 
 

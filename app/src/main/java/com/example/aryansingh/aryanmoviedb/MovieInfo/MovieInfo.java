@@ -1,10 +1,15 @@
 package com.example.aryansingh.aryanmoviedb.MovieInfo;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -17,17 +22,19 @@ import android.widget.Toast;
 import com.example.aryansingh.aryanmoviedb.CastInfo.CastInfo;
 import com.example.aryansingh.aryanmoviedb.MovieConstants;
 import com.example.aryansingh.aryanmoviedb.MovieDBClient;
-import com.example.aryansingh.aryanmoviedb.Movies.MovieResults;
 import com.example.aryansingh.aryanmoviedb.Movies.MoviesAdaptor;
 import com.example.aryansingh.aryanmoviedb.Movies.MoviesInterface;
 import com.example.aryansingh.aryanmoviedb.Movies.Result;
 import com.example.aryansingh.aryanmoviedb.R;
+//import com.google.android.youtube.player.YouTubeBaseActivity;
+import com.example.aryansingh.aryanmoviedb.RoomDatabase.FavoriteDao;
+import com.example.aryansingh.aryanmoviedb.RoomDatabase.Movie;
+import com.example.aryansingh.aryanmoviedb.RoomDatabase.MovieDatabase;
+import com.example.aryansingh.aryanmoviedb.TvShowInfo.EpisodesFragment;
+import com.example.aryansingh.aryanmoviedb.TvShowInfo.MoreLikeThis;
 import com.squareup.picasso.Picasso;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -35,10 +42,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class MovieInfo extends AppCompatActivity {
+public class MovieInfo extends AppCompatActivity implements YoutubeFragment.OnFragmentInteractionListener{
 
+    Bundle bundle = new Bundle();
     String genre = "";
     Result movieResults;
+    String poster_path;
     LinearLayout similarMoviesLayout, revenueLL, budgetLL;
     MoviesAdaptor moviesAdaptor;
     CastAdaptor castAdaptor;
@@ -57,19 +66,22 @@ public class MovieInfo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_info);
 
+        final MovieDatabase database = Room.databaseBuilder(getApplicationContext(),MovieDatabase.class,"movie")
+                .allowMainThreadQueries()
+                .build();
+        List<Long> movie_ids = database.favoriteDao().getAllMovieIds();
+
+
+
         similarMoviesLayout = (LinearLayout) findViewById(R.id.similarMovies);
-        revenueLL = (LinearLayout) findViewById(R.id.revenueLL);
-        budgetLL = (LinearLayout) findViewById(R.id.budgetLL);
 
         genreTextView = findViewById(R.id.genreTextView);
         like = findViewById(R.id.like);
         share = findViewById(R.id.share);
         mylist = findViewById(R.id.mylist);
-        poster = findViewById(R.id.poster);
-        backdrop = findViewById(R.id.backdrop);
+//        poster = findViewById(R.id.poster);
+//        backdrop = findViewById(R.id.backdrop);
         movie_info_overview = findViewById(R.id.movie_info_overview);
-        movie_info_budget = findViewById(R.id.movie_info_budget);
-        movie_info_revenue= findViewById(R.id.movie_info_revenue);
         movie_rating= findViewById(R.id.movie_rating);
         movie_title= findViewById(R.id.movie_title);
         movie_duration= findViewById(R.id.movie_duration);
@@ -79,19 +91,21 @@ public class MovieInfo extends AppCompatActivity {
         movie_info_cast_recycler_view = findViewById(R.id.movie_info_cast_recycler_view);
         showMore = findViewById(R.id.showMore);
 
-        showMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(showMore.getText().equals("Hide")){
-                    showMore.setText("Show More");
-                    movie_info_overview.setMaxLines(4);
+            showMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(showMore.getText().equals("Show Less")){
+                        showMore.setText("Show More");
+                        movie_info_overview.setMaxLines(4);
+                    }
+                    else{
+                        movie_info_overview.setMaxLines(1000);
+                        showMore.setText("Show Less");
+                    }
+
                 }
-                else{
-                    movie_info_overview.setMaxLines(1000);
-                    showMore.setText("Hide");
-                }
-            }
-        });
+            });
+
 
         mylist.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -123,6 +137,11 @@ public class MovieInfo extends AppCompatActivity {
                     likes.add(id);
                     like.setImageDrawable(getDrawable(R.drawable.ic_thumb_up_blue_24dp));
                     Toast.makeText(MovieInfo.this,"Added to Favorites",Toast.LENGTH_LONG).show();
+
+                    Movie movie = new Movie(id,"","type",poster_path);
+                    database.favoriteDao().addMovie(movie);// adding to the db
+
+
                 }
             }
         });
@@ -156,6 +175,17 @@ public class MovieInfo extends AppCompatActivity {
 
         Intent i = getIntent();
         id = i.getLongExtra("movieId",0);
+
+        YoutubeFragment fragment = new YoutubeFragment();
+        bundle.putLong("id",id);
+        fragment.setArguments(bundle);
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction()
+                .replace(R.id.main, fragment)
+                .commit();
+
+//        Intent intent = new Intent(MovieInfo.this,YoutubeFragment.class);
+//        intent.putExtra("id",id);
 
         Retrofit retrofit = MovieDBClient.getClient();
         MoviesInterface moviesInterface = retrofit.create(MoviesInterface.class);
@@ -194,26 +224,23 @@ public class MovieInfo extends AppCompatActivity {
             }
         });
 
-
-
-
-
         Call<MovieDetails> detailsCall = moviesInterface.getMovieDetails(id,MovieConstants.API_KEY);
         detailsCall.enqueue(new Callback<MovieDetails>() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onResponse(Call<MovieDetails> call, Response<MovieDetails> response) {
                 MovieDetails movieDetails = response.body();
-                if (movieDetails.getPosterPath() != null) {
-                    poster.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
-                    Picasso.with(MovieInfo.this).load(MovieConstants.MOVIE_IMAGE_BASE_URL + movieDetails.getPosterPath()).into(poster);
-                }
-                if (movieDetails.getBackdropPath() != null) {
-                    backdrop.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
-                    Picasso.with(MovieInfo.this).load(MovieConstants.SLIDER_BASE_URL + movieDetails.getBackdropPath()).into(backdrop);
-                }
+//                if (movieDetails.getPosterPath() != null) {
+//                    poster.setVisibility(View.VISIBLE);
+//                    progressBar.setVisibility(View.GONE);
+//                    Picasso.with(MovieInfo.this).load(MovieConstants.MOVIE_IMAGE_BASE_URL + movieDetails.getPosterPath()).into(poster);
+//                }
+//                if (movieDetails.getBackdropPath() != null) {
+//                    backdrop.setVisibility(View.VISIBLE);
+//                    progressBar.setVisibility(View.GONE);
+//                    Picasso.with(MovieInfo.this).load(MovieConstants.SLIDER_BASE_URL + movieDetails.getBackdropPath()).into(backdrop);
+//                }
+                poster_path = movieDetails.getPosterPath();
                 if (movieDetails.getOverview() != null) {
                     movie_info_overview.setText(movieDetails.getOverview() + "");
                 }
@@ -223,18 +250,6 @@ public class MovieInfo extends AppCompatActivity {
                 }
                 if(movieDetails.getRuntime() !=null){
                     movie_duration.setText(changeTime(movieDetails.getRuntime()));
-                }
-                if (movieDetails.getBudget() != null) {
-                    if (movieDetails.getBudget() != 0) {
-                        budgetLL.setVisibility(View.VISIBLE);
-                        movie_info_budget.setText(movieDetails.getBudget() + "");
-                    }
-                }
-                if (movieDetails.getRevenue() != null) {
-                    if (movieDetails.getRevenue() != 0) {
-                        revenueLL.setVisibility(View.VISIBLE);
-                        movie_info_revenue.setText(movieDetails.getRevenue() + "");
-                    }
                 }
                 if(movieDetails.getTitle()!=null){
                     movie_title.setText(movieDetails.getTitle());
@@ -266,4 +281,38 @@ public class MovieInfo extends AppCompatActivity {
         return "" + hrs + " hrs " + mins + " mins";
 
     }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    private class PagerAdaptor extends FragmentStatePagerAdapter {
+
+        int nTabs;
+
+        public PagerAdaptor(FragmentManager fm, int nTabs) {
+            super(fm);
+            this.nTabs = nTabs;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+//            switch (position){
+//                case 0:
+//                    YoutubeFragment youtubeFragment = new YoutubeFragment();
+//
+//                    return youtubeFragment;
+//                default:
+                    return null;
+            //}
+        }
+
+        @Override
+        public int getCount() {
+            return nTabs;
+        }
+    }
+
 }

@@ -44,6 +44,10 @@ public class CastInfo extends AppCompatActivity {
     ArrayList<Long> likes = new ArrayList<>();
     ArrayList<Long> mylists = new ArrayList<>();
 
+    RecyclerView galleryRecyclerView;
+    List<Profile> profileList;
+    CastGalleryAdaptor galleryAdaptor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +64,7 @@ public class CastInfo extends AppCompatActivity {
         cast_info_pob = findViewById(R.id.cast_info_pob);
         cast_info_biography = findViewById(R.id.cast_info_biography);
         popularity = findViewById(R.id.popularity);
+        galleryRecyclerView = findViewById(R.id.galleryRecyclerView);
 
         like = findViewById(R.id.like);
         share = findViewById(R.id.share);
@@ -123,6 +128,41 @@ public class CastInfo extends AppCompatActivity {
 
         Retrofit retrofit = MovieDBClient.getClient();
         CastInterface castInterface = retrofit.create(CastInterface.class);
+
+
+        profileList = new ArrayList<>();
+        galleryAdaptor = new CastGalleryAdaptor(this, profileList, new CastGalleryAdaptor.MoviesClickListener() {
+            @Override
+            public void onMovieClick(View view, int position) {
+
+            }
+        });
+        galleryRecyclerView.setAdapter(galleryAdaptor);
+        galleryRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+
+
+        retrofit2.Call<CastImages> profileCall = castInterface.getCastImages(id,MovieConstants.API_KEY);
+        profileCall.enqueue(new Callback<CastImages>() {
+            @Override
+            public void onResponse(retrofit2.Call<CastImages> call, Response<CastImages> response) {
+                CastImages castImages = response.body();
+                List<Profile> profiles = castImages.getProfiles();
+
+                profileList.clear();
+                profileList.addAll(profiles);
+                galleryAdaptor.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<CastImages> call, Throwable t) {
+
+            }
+        });
+
+
+
+
+
 
         // we made the movies adaptor because we need that only
         castMoviesList = new ArrayList<>();

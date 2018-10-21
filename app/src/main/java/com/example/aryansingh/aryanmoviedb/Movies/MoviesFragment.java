@@ -13,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +35,7 @@ import retrofit2.Retrofit;
 public class MoviesFragment extends Fragment {
 
     TextView nowShowingTextView1,comingSoonTextView1, popularMoviesTextView1, topRatedTextView1;
-    NestedScrollView mainView;
+    LinearLayout mainView;
 
     List<Result> nowShowingResultsList;
     MoviesAdaptor nowShowingAdapter;
@@ -255,6 +257,7 @@ public class MoviesFragment extends Fragment {
             }
         });
 
+        if(a && b && c && d)
             mainView.setVisibility(View.VISIBLE);
 
         return v;
