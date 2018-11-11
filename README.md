@@ -1,14 +1,18 @@
-# AryanMovieDB
-- An app where you can look for movies and tv shows
-- Search for a movie, tv show, or an actor
-- Used retrofit library and Gson converter
-- Everything is real time, using the Movie DB API
-- Watch trailers on a click, get details of all episodes of a tv show
+## What it does
+Gives you all the details of all movies and tv shows in the world. 
 
-## More to come
-- Room database for likes and my list
-- Animations for the home page and info pages
-- Netflix fragment for the movies and tv shows on netflix
+## How I built it
+Built in Android studio using the Movie DB API
+
+## What I learned
+Integrating the Movie DB API fully into my app.
+
+Integrating youtube trailers, tab layouts, swipe layouts, navigation bar to my app
+
+## What's next for PoppyCorn
+Netflix API so that people can look for netflix shows and movies
+
+Integrating with other APIs to make it easy to discover
 
 <img src="app/src/main/java/com/example/aryansingh/aryanmoviedb/Images/44416515_712217605804621_7158912516163108864_n.jpg" width="200" >
 
