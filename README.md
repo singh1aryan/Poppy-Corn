@@ -1,4 +1,7 @@
-# Technology
+# Android Application
+Complete movie/tv show info app with in-app trailers
+
+## Technology used
 <ul>
 <li>The Movie Database (TMDb)</li>
 <li>SQLite Database</li>
